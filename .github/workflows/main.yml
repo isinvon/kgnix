@@ -8,6 +8,8 @@ on:
 
 jobs:
   build:
+    # 仅当 push 到 main 分支且打上 v 开头的版本 tag 时才运行
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' && startsWith(github.ref, 'refs/tags/v'))
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,26 +18,26 @@ jobs:
       - name: 拉取项目代码
         uses: actions/checkout@v4
 
-      - name: 检查标签是否在 main 分支上创建
-        id: check_tag_on_main
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-        run: |
-          TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
-          MAIN_COMMIT=$(git rev-parse origin/main)
-          if [ "$TAG_COMMIT" == "$MAIN_COMMIT" ]; then
-            echo "::set-output name=tag_on_main::true"
-          else
-            echo "::set-output name=tag_on_main::false"
-          fi
+      # - name: 检查标签是否在 main 分支上创建
+      #   id: check_tag_on_main
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      #   run: |
+      #     TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+      #     MAIN_COMMIT=$(git rev-parse origin/main)
+      #     if [ "$TAG_COMMIT" == "$MAIN_COMMIT" ]; then
+      #       echo "::set-output name=tag_on_main::true"
+      #     else
+      #       echo "::set-output name=tag_on_main::false"
+      #     fi
 
       - name: 安装node环境
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: 安装pnpm
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: pnpm/action-setup@v4
         id: pnpm-install
         with:
@@ -43,14 +45,14 @@ jobs:
           run_install: false
 
       - name: 获取pnpm仓库目录
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: 设置pnpm缓存
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -59,23 +61,23 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: 安装Python3环境
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/setup-python@v5
         with:
           python-version: "3.9"
           cache: "pip"
 
       - name: 初始化打包环境
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: pnpm run init
 
       - name: 开始打包
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: pnpm run build
 
       # 上传到 GitHub Actions 的构建工件（artifact）存储中，并不会自动推送到 GitHub Releases。
       - name: 上传打包完成的程序包
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v4
         with:
           name: Setup_${{ runner.os }}
@@ -85,7 +87,7 @@ jobs:
       # 创建 GitHub Release
       - name: 创建 GitHub Release
         uses: actions/create-release@v1
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
@@ -98,7 +100,7 @@ jobs:
       # 上传 Windows .exe 文件(zip压缩后)到 Release
       - name: 上传 Windows .exe 文件(zip压缩后)到 Release
         uses: actions/upload-release-asset@v1
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/Setup_Windows.zip  # 假设打包后的 zip 文件路径
@@ -109,7 +111,7 @@ jobs:
       # 上传 macOS .dmg 文件(zip压缩后)到 Release
       - name: 上传 macOS .dmg 文件(zip压缩后)到 Release
         uses: actions/upload-release-asset@v1
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/Setup_macOS.zip  # 假设打包后的 zip 文件路径
@@ -120,7 +122,7 @@ jobs:
       # 上传 Linux .deb 文件(zip压缩后)到 Release
       - name: 上传 Linux .deb 文件(zip压缩后)到 Release
         uses: actions/upload-release-asset@v1
-        if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        # if: steps.check_tag_on_main.outputs.tag_on_main == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/Setup_Linux.zip  # 假设打包后的 zip 文件路径
