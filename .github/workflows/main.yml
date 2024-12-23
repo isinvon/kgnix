@@ -95,7 +95,7 @@ jobs:
             这里是版本发布说明，描述此版本的更新内容。
           draft: false
           prerelease: false
-          token: ${{ secrets.kgnix_github_token }} # 使用 GitHub 自动提供的 token
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的 token ,`GITHUB_TOKEN` 是 GitHub 自动生成的令牌，不需要修改名称，可以直接通过 `secrets.GITHUB_TOKEN` 引用。
 
       # 上传 Windows .exe 文件(zip压缩后)到 Release
       - name: 上传 Windows .exe 文件(zip压缩后)到 Release
@@ -106,7 +106,7 @@ jobs:
           asset_path: ./build/Setup_Windows.zip  # 假设打包后的 zip 文件路径
           asset_name: kgnix-windows-${{ github.ref }}.zip  # 上传时的文件名称，格式为 kgnix-windows-v1.0.0.zip
           asset_content_type: application/zip  # 这里的 MIME 类型应为 application/zip
-          token: ${{ secrets.kgnix_github_token }} # 自动使用 GitHub token 自定义创建的 kgnix_github_token
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的 token
 
       # 上传 macOS .dmg 文件(zip压缩后)到 Release
       - name: 上传 macOS .dmg 文件(zip压缩后)到 Release
@@ -117,7 +117,7 @@ jobs:
           asset_path: ./build/Setup_macOS.zip  # 假设打包后的 zip 文件路径
           asset_name: kgnix-macos-${{ github.ref }}.zip  # 上传时的文件名称，格式为 kgnix-macos-v1.0.0.zip
           asset_content_type: application/zip  # 这里的 MIME 类型应为 application/zip
-          token: ${{ secrets.kgnix_github_token }} # 自动使用 GitHub token 自定义创建的 kgnix_github_token
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的 token
 
       # 上传 Linux .deb 文件(zip压缩后)到 Release
       - name: 上传 Linux .deb 文件(zip压缩后)到 Release
@@ -128,4 +128,4 @@ jobs:
           asset_path: ./build/Setup_Linux.zip  # 假设打包后的 zip 文件路径
           asset_name: kgnix-linux-${{ github.ref }}.zip  # 上传时的文件名称，格式为 kgnix-linux-v1.0.0.zip
           asset_content_type: application/zip  # 这里的 MIME 类型应为 application/zip
-          token: ${{ secrets.kgnix_github_token }} # 自动使用 GitHub token 自定义创建的 kgnix_github_token
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的 token
