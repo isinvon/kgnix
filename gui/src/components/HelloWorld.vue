@@ -16,7 +16,7 @@
     <p>视图层可使用任意一款你喜欢的前端框架，比如 <b>Vue</b>、<b>React</b>、<b>Angular</b>、<b>HTML</b> 等</p>
 
     <p>用户名：{{ creator }}</p>
-    <button v-if="creator == 'pangao'" type="button" @click="getOwner">获取本机用户名</button>
+    <button v-if="creator == 'sinvon'" type="button" @click="getOwner">获取本机用户名</button>
 
     <!-- 检测更新 -->
     <BtnUpdate class="mt10" />
@@ -27,11 +27,11 @@
 import BtnUpdate from './BtnUpdate.vue'
 import { ref } from 'vue'
 
-defineProps({
+const props = defineProps({
   msg: String
 })
 
-let creator = ref('pangao')
+let creator = ref('sinvon')
 
 const getOwner = () => {
   // 获取本机用户名

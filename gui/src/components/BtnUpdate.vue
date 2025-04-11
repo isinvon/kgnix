@@ -1,57 +1,76 @@
 <template>
   <div>
-    <el-tooltip content="检测更新" placement="bottom" effect="light">
-      <el-button key="plain" size="small" link @click="onCheckUpdate(false)">
-        <SvgIcon :name="state.btnLoading ? 'ele-Loading' : 'icon-Update'" :size="20" :class="{ 'is-loading': state.btnLoading }"></SvgIcon>
-      </el-button>
-    </el-tooltip>
-
-    <el-dialog v-model="state.checkVisible" title="检测更新" top="30vh" draggable destroy-on-close :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" :center="false">
-      <div>
-        <SvgIcon v-if="state.code == 1" name="ele-SuccessFilled" :size="18" color="#67C23A" style="top:4px"></SvgIcon>
-        <SvgIcon v-else-if="state.code == 0" name="ele-WarningFilled" :size="18" color="#E6A23C" style="top:4px"></SvgIcon>
-        <SvgIcon v-else-if="state.code == -1" name="ele-CircleCloseFilled" :size="18" color="#F56C6C" style="top:4px"></SvgIcon>
-        {{ state.msg }}
+    <div class="relative inline-block" @mouseover="showTooltip = true" @mouseleave="showTooltip = false">
+      <button class="text-sm text-blue-500 focus:outline-none" @click="onCheckUpdate(false)">
+        <SvgIcon :name="state.btnLoading ? 'ele-Loading' : 'icon-Update'" :size="20" :class="{ 'animate-spin': state.btnLoading }"></SvgIcon>
+      </button>
+      <div v-if="showTooltip" class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-2 bg-gray-800 text-white rounded shadow-md whitespace-nowrap">
+        检测更新
       </div>
-      <div v-if="state.code == 0 && state.body != ''" class="update-info">
-        <div v-for="item in state.body">{{ item }}</div>
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-link v-if="state.htmlUrl != ''" class="float-l mt10" type="info" @click="onOpenLink">手动更新</el-link>
-          <el-button v-if="state.code == 0" @click="state.checkVisible = false">取消</el-button>
-          <el-button type="primary" @click="onConfirm">确认</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    </div>
 
-    <el-dialog v-model="state.downloadVisible" title="下载更新" align-center draggable destroy-on-close :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false">
-      <div>
-        <div class="mb6">
-          <SvgIcon name="ele-Loading" :size="14" class="is-loading mr2" style="top:2px" color="#337ecc"></SvgIcon>
-          正在下载更新...
+    <div v-if="state.checkVisible" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium">检测更新</h3>
+          <button class="text-gray-500 hover:text-gray-700" @click="state.checkVisible = false">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <el-progress :text-inside="true" :stroke-width="25" :percentage="state.downloadPercentage">
-          <span>{{ state.downloadSizeShow }}</span>
-        </el-progress>
+        <div class="mt-4">
+          <SvgIcon v-if="state.code == 1" name="ele-SuccessFilled" :size="18" color="#67C23A" style="top:4px"></SvgIcon>
+          <SvgIcon v-else-if="state.code == 0" name="ele-WarningFilled" :size="18" color="#E6A23C" style="top:4px"></SvgIcon>
+          <SvgIcon v-else-if="state.code == -1" name="ele-CircleCloseFilled" :size="18" color="#F56C6C" style="top:4px"></SvgIcon>
+          {{ state.msg }}
+        </div>
+        <div v-if="state.code == 0 && state.body != ''" class="update-info">
+          <div v-for="item in state.body">{{ item }}</div>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button v-if="state.code == 0" class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400" @click="state.checkVisible = false">取消</button>
+          <button class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="onConfirm">确认</button>
+        </div>
       </div>
-      <div v-if="state.htmlUrl != ''" class="tip">
-        若网速不理想，请尝试
-        <span><el-link type="primary" @click="onOpenLink" class="tip-sd">手动更新</el-link></span>
+    </div>
+
+    <div v-if="state.downloadVisible" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium">下载更新</h3>
+          <button class="text-gray-500 hover:text-gray-700" @click="state.downloadVisible = false">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-4">
+          <div class="mb-2 flex items-center">
+            <SvgIcon name="ele-Loading" :size="14" class="animate-spin mr-2" style="top:2px" color="#337ecc"></SvgIcon>
+            正在下载更新...
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-6">
+            <div class="bg-blue-500 h-6 rounded-full" :style="{ width: state.downloadPercentage + '%' }">
+              <span class="absolute left-1/2 transform -translate-x-1/2 text-white">{{ state.downloadSizeShow }}</span>
+            </div>
+          </div>
+        </div>
+        <div v-if="state.htmlUrl != ''" class="mt-4 text-gray-500 text-sm">
+          若网速不理想，请尝试
+          <span><a v-if="state.htmlUrl != ''" href="#" class="text-blue-500 hover:underline" @click.prevent="onOpenLink">手动更新</a></span>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400" @click="onCancel">取消</button>
+          <button class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" @click="onBack">后台更新</button>
+        </div>
       </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <!-- <el-link v-if="state.htmlUrl != ''" class="float-l mt10" type="info" @click="onOpenLink">手动更新</el-link> -->
-          <el-button @click="onCancel">取消</el-button>
-          <el-button type="primary" @click="onBack">后台更新</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ElMessage } from 'element-plus'
+import { document } from 'postcss'
 import { reactive, onMounted, onUnmounted } from 'vue'
 
 const state = reactive({
@@ -141,11 +160,11 @@ const onConfirm = () => {
       // console.log('res', res)
       state.downloadVisible = false
       if (res.code == 0) {
-        ElMessage.success('下载完成')
+        alert('下载完成') // 使用原生 alert 替代 ElMessage
         state.btnLoading = false
         window.pywebview.api.system_pyOpenFile(res.downloadPath)
       } else {
-        ElMessage.error(res.msg)
+        alert(res.msg) // 使用原生 alert 替代 ElMessage
       }
     })
   }
@@ -168,25 +187,18 @@ const onBack = () => {
 </script>
 
 <style scoped>
+
 .update-info {
-  margin-left: 20px;
-  margin-top: 10px;
-  padding: 10px;
-  color: #909399;
-  font-size: 12px;
-  overflow: scroll;
-  background-color: #F2F3F5;
-  max-height: 50px;
+  @apply ml-5 mt-2.5 p-2.5 text-gray-500 text-sm overflow-y-scroll bg-gray-100 max-h-14 rounded;
 }
+
 
 .tip {
-  margin-top: 10px;
-  color: #A8ABB2;
-  font-size: 11px;
+  @apply mt-2.5 text-gray-400 text-xs;
 }
 
+
 .tip-sd {
-  font-size: 11px;
-  top: -1px;
+  @apply text-xs -mt-0.5;
 }
 </style>

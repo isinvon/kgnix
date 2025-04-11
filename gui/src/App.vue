@@ -1,16 +1,17 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+defineProps({
+  msg: String
+})
 </script>
 
 
 <template>
   <div class="center-col h100 w100 scroll">
     <div class="logo-box">
-      <img alt="pywebview logo" src="./assets/pywebview.png" />
-      <img class="ml50 mr50" alt="pyinstaller logo" src="./assets/pyinstaller.png" />
       <img alt="Vue logo" src="./assets/vue.png" />
     </div>
-    <HelloWorld class="m30" msg="PPX (Pywebview + PyInstaller + Vue3)" />
+    <HelloWorld class="m30" msg="hello world" />
   </div>
 </template>
 

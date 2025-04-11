@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-const props = defineProps({
+const wprops = defineProps({
   // svg 图标组件名字
   name: {
     type: String
